@@ -17,7 +17,7 @@ import geopandas as gpd
 from pyvis.network import Network
  
 
-import LLM_Geo_Constants as constants
+import LLM_Cat_Constants as constants
 
 #load config
 config = configparser.ConfigParser()

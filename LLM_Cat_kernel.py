@@ -1,4 +1,4 @@
-import LLM_Geo_Constants as constants
+import LLM_Cat_Constants as constants
 import helper
 import os
 import requests
