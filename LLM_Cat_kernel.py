@@ -48,6 +48,7 @@ class Solution():
         self.task_name = task_name   
         self.save_dir = save_dir
         self.code_for_graph = ""
+        self.all_code = ""
         self.graph_file = os.path.join(self.save_dir, f"{self.task_name}.graphml")
         self.source_nodes = None
         self.sink_nodes = None
@@ -64,7 +65,8 @@ class Solution():
         self.assembly_LLM_response = ""
         self.code_for_assembly = ""
         self.graph_prompt = ""
-         
+        self.map_review_comments = ""
+          
         self.data_locations_str = '\n'.join([f"{idx + 1}. {line}" for idx, line in enumerate(self.data_locations)])     
         
         graph_requirement = constants.graph_requirement.copy()
@@ -77,6 +79,9 @@ class Solution():
                f'Your reply example: {constants.graph_reply_exmaple} \n\n' + \
                f'Data locations (each data is a node): {self.data_locations_str} \n'
         self.graph_prompt = graph_prompt
+        self.beautify_prompt = ""
+        self.map_review_prompt = ""
+        self.map_revise_prompt = ""
 
         # self.direct_request_prompt = ''
         self.direct_request_LLM_response = ''
@@ -423,6 +428,7 @@ class Solution():
         return self.direct_request_LLM_response
 
     def execute_complete_program(self, code: str, try_cnt: int = 10) -> str:
+        
 
         count = 0
         while count < try_cnt:
@@ -461,6 +467,8 @@ class Solution():
                                                 retry_cnt=5,
                                                 )
                 code = helper.extract_code(response)
+                self.all_code = code
+                self.save_solution()
 
         return code
 
@@ -616,3 +624,125 @@ class Solution():
         # self.direct_request_code = new_code
 
 
+
+        
+    def get_beautify_text_prompt(self, code=''):
+        
+        if code == "":
+            code = self.all_code
+          
+
+        beautify_requirement_str = '\n'.join([f"{idx + 1}. {line}" for idx, line in enumerate(constants.beautify_requirement)])
+
+        beautify_prompt = f"Your role: {constants.beautify_role} \n" + \
+                          f"Your task: {constants.beautify_task} \n\n" + \
+                          f"Requirements: \n{beautify_requirement_str} \n\n" + \
+                          f'Your reply example: {constants.beautify_reply_exmaple} \n\n' + \
+                          f"The given code is used for this task: {self.task} \n\n" + \
+                          f"The given code is: \n{code} \n\n"
+        
+        self.beautify_prompt = beautify_prompt
+
+        return self.beautify_prompt 
+    
+    
+    
+    def ask_LLM_to_beautify_map(self, map_base64, model='gpt-4-turbo'):
+        # code = self.code_for_assembly
+        # assembly_prompt = self.assembly_prompt
+        
+        self.get_beautify_text_prompt(self.all_code)
+        
+        response = helper.get_LLM_vision_reply(prompt=self.beautify_prompt,
+                                        system_role=constants.beautify_role,
+                                        model=model,
+                                        img_base64=map_base64,
+                                        verbose=True,
+                                        stream=True,
+                                        retry_cnt=5,
+                                        )
+        
+        new_code = helper.extract_code(response)
+        
+        self.all_code = new_code
+
+        
+        
+        
+    def get_review_prompt(self):
+         
+        requirements_str = '\n'.join([f"{idx + 1}. {line}" for idx, line in enumerate(constants.map_review_requirement)])
+
+        map_review_prompt = f"Your role: {constants.map_review_role} \n" + \
+                          f"Your task: {constants.map_review_task} \n\n" + \
+                          f"Requirements: \n{requirements_str} \n\n" + \
+                          f'Your reply example: {constants.map_review_reply_exmaple} \n\n'
+      
+        
+        self.map_review_prompt = map_review_prompt
+
+        return self.map_review_prompt 
+    
+    
+    def ask_LLM_to_review_map(self, map_base64, model='gpt-4-turbo'):
+        # code = self.code_for_assembly
+        # assembly_prompt = self.assembly_prompt
+        
+        self.get_review_prompt()
+        
+        response = helper.get_LLM_vision_reply(prompt=self.map_review_prompt,
+                                        system_role=constants.map_review_role,
+                                        model=model,
+                                        img_base64=map_base64,
+                                        verbose=True,
+                                        stream=True,
+                                        retry_cnt=5,
+                                        )
+        
+        # map_review_comments = response
+        
+        self.map_review_comments = helper.extract_content_from_LLM_reply(response)
+        # return map_review_comments
+    
+    
+    
+    def ask_LLM_to_revise_map(self, map_base64, model='gpt-4-turbo'):
+        # code = self.code_for_assembly
+        # assembly_prompt = self.assembly_prompt
+        
+        self.get_map_revise_prompt()
+        
+        response = helper.get_LLM_vision_reply(prompt=self.map_revise_prompt,
+                                        system_role=constants.map_revise_role,
+                                        model=model,
+                                        img_base64=map_base64,
+                                        verbose=True,
+                                        stream=True,
+                                        retry_cnt=5,
+                                        )
+        
+        new_code = helper.extract_code(response)
+        
+        self.all_code = new_code
+        
+        
+    def get_map_revise_prompt(self):
+         
+        requirements_str = '\n'.join([f"{idx + 1}. {line}" for idx, line in enumerate(constants.map_revise_requirements)])
+
+        map_revise_prompt = f"Your role: {constants.map_revise_role} \n" + \
+                          f"Your task: {constants.map_revise_task} \n\n" + \
+                          f"Requirements: \n{requirements_str} \n\n" + \
+                          f'Map issues need to be improved:\n {self.map_review_comments} \n\n' + \
+                          f'Your reply example:\n {constants.map_revise_reply_exmaple} \n\n' + \
+                          f'The raw requirement for the map: {self.task} \n\n' + \
+                          f"Code for map generation: \n{self.all_code}"
+      
+        
+        self.map_revise_prompt = map_revise_prompt
+
+        return self.map_revise_prompt 
+    
+    
+    
+    

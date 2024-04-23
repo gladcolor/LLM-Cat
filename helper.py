@@ -131,6 +131,87 @@ def get_LLM_reply(prompt="Provide Python code to read a CSV file from this URL a
     
     return response
 
+def get_LLM_vision_reply(prompt="Provide Python code to read a CSV file from this URL and store the content in a variable. ",
+                  system_role=r'You are a professional Geo-information scientist and developer.',
+                  model=r"gpt-3.5-turbo",
+                  img_base64="",
+                  verbose=True,
+                  temperature=1,
+                  stream=True,
+                  retry_cnt=3,
+                  sleep_sec=10,
+                  ):
+
+    # Generate prompt for ChatGPT
+    # url = "https://github.com/gladcolor/LLM-Geo/raw/master/overlay_analysis/NC_tract_population.csv"
+    # prompt = prompt + url
+
+    # Query ChatGPT with the prompt
+    # if verbose:
+    #     print("Geting LLM reply... \n")
+    count = 0
+    isSucceed = False
+    while (not isSucceed) and (count < retry_cnt):
+        try:
+            count += 1
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system", "content": system_role
+                    },
+
+                   {
+                        "role": "user", 
+                         "content": [
+                            {
+                                "type": "text", "text": prompt
+                            },
+                            {
+                                "type": "image_url", 
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64, {img_base64}",
+                                    # "detail": "high"
+                                 } # This closing brace matches the "image_url" dictionary
+                            }
+                         ],
+
+                   },  
+               ],
+                temperature=temperature,
+                stream=stream
+             )
+             
+        except Exception as e:
+            # logging.error(f"Error in get_LLM_reply(), will sleep {sleep_sec} seconds, then retry {count}/{retry_cnt}: \n", e)
+            print(f"Error in get_LLM_reply(), will sleep {sleep_sec} seconds, then retry {count}/{retry_cnt}: \n", e)
+            time.sleep(sleep_sec)
+            
+    response_chucks = []
+    # response_chucks = ""
+    if stream:
+        for chunk in response:
+            response_chucks.append(chunk)
+            content = chunk.choices[0].delta.content
+            if content is not None:
+                # response_chucks += str(content)
+                if verbose:
+                    print(content, end='')
+                     
+           
+    else:
+        content = response.choices[0].message.content
+        # response_chucks += content
+        # print(content)
+    print('\n\n')
+    # print("Got LLM reply.")
+     
+        
+    # response = response_chucks # good for saving
+    
+    return response_chucks
+
+
  
 def has_disconnected_components(directed_graph, verbose=True):
     # Get the weakly connected components
@@ -362,3 +443,5 @@ def find_source_node(graph):
 
     # Return the source nodes
     return source_nodes
+
+

@@ -39,34 +39,33 @@ graph_requirement = [
                         'The data and operation form a graph.',
                         'The first operations are data loading or collection, and the output of the last operation is to generat map(s).',
                         'Operation nodes need to connect via output data nodes, DO NOT connect the operation node directly.',
-                        'The node attributes include: 1) node_type (data or operation), 2) data_path (data node only, set to "" if not given ), and description. E.g., {"name": "County boundary", "data_type": "data", "data_path": "D:\Test\county.shp",  "description": "County boundary for the study area"}.',
+                        'The node attributes include: 1) node_type (data or operation), 2) data_path (data node only, set to "" if not given), and description. E.g., {"name": "County boundary", "data_type": "data", "data_path": r"D:\Test\county.shp",  "description": "County boundary for the study area"}.',
                         'The connection between a node and an operation node is an edge.', 
                         'Add all nodes and edges, including node attributes to a NetworkX instance, DO NOT change the attribute names.',
                         'DO NOT generate code to implement the steps.',
                         'Join the attribute to the vector layer via a common attribute if necessary.',
                         'Put your reply into a Python code block, NO explanation or conversation outside the code block(enclosed by ```python and ```).',
                         'Note that GraphML writer does not support class dict or list as data values.',
-                        'You need spatial data (e.g., vector or raster) to make a map.',
+                        'You need to use the given spatial data (e.g., vector or raster) to make a map.',
                         'A map usualy contains several map elements, such as title, north arrow scalebar, legend, label, and annotation.',
-                        'Create an operation node for each map element, you can determine which element is needed according to user input or based on your reasoning.',
+                        'Create an operation node to draw each map element, you can determine which element is needed according to user input or based on your reasoning.',
                         'Add a map element via a individual operation node. The nodes of adding map elements should be successive.',
                         'Do not put the GraphML writing process as a step in the graph.',
                         'Keep the graph concise, DO NOT use too many operation nodes.',
   
                          ]
 
- 
-
-
+  
 
 #--------------- constants for operation generation  ---------------
-operation_role = r'''A professional cartographer and programmer good at Python. You have worked on cartographer more than 20 years, and know every detail and pitfall when processing and visualizing spatial data and using code to genearte the map. You know well how to design and implement a function that meet the interface between other functions. Yor program is always robust, considering the various data circumstances, such as colum data types, avoiding mistakes when joining tables, and remove NAN cells before further processing. You have an good feeling of overview, meaning the functions in your program is coherent, and they connect to each other well, such as function names, parameters types, and the calling orders. You are also super experienced on generating maps using GeoPandas, Matplotlib and Plotly.
+operation_role = r'''A professional cartographer and programmer good at Python. You have worked on cartographer more than 20 years, and know every detail and pitfall when processing and visualizing spatial data and using code to genearte the map. You know well how to design and implement a function that meet the interface between other functions. Yor program is always robust, considering the various data circumstances, such as colum data types, avoiding mistakes when joining tables, and remove NAN cells before further processing. You have an good feeling of overview, meaning functions in your program are coherent, and they connect to each other well, such as function names, parameters types, and the calling orders. You are also super experienced on generating maps using GeoPandas, Matplotlib and Plotly. Your current job is to write a serial of Python function to generate a map.
 '''
 
 operation_task_prefix = r'You need to generate a Python function to do: '
 
 operation_reply_exmaple = """
-```python',
+```python
+# Loading CSV file for further use.
 def Load_csv(tract_population_csv_url="https://github.com/gladcolor/LLM-Geo/raw/master/overlay_analysis/NC_tract_population.csv"):
 # Description: Load a CSV file from a given URL
 # tract_population_csv_url: Tract population CSV file URL
@@ -77,7 +76,7 @@ return tract_population_df
 
 operation_requirement = [                         
                         'DO NOT change the given variable names and paths.',
-                        'Put your reply into a Python code block(enclosed by ```python and ```), NO explanation or conversation outside the code block.',
+                        'Put your reply into a Python code block(enclosed by ```python and ```), NO explanation or conversation outside the code block. Function desription can be given as comments before generating the Python function.',
                         'If using GeoPandas to load a zipped ESRI shapefile from a URL, the correct method is "gpd.read_file(URL)". DO NOT download and unzip the file.',
                         "You need to receive the data from the functions, DO NOT load in the function if other functions have loaded the data and returned it in advance.",
                         "Use the latest Python modules and methods.",
@@ -88,6 +87,10 @@ operation_requirement = [
                         "Use the Python built-in functions or attribute. If you do not remember, DO NOT make up fake ones, just use alternative methods.",
                         "Pandas library has no attribute or method 'StringIO', so 'pd.compat.StringIO' is wrong, you need to use 'io.StringIO' instead.",
                         "If you need to make a map and the map size is not given, set the map size to 15*10 inches.",
+                        'When you add a color bar, make sure it has a suitable size, such as not longer than the map height or width.',    
+                        "When adding the map grid, colorbar, and scalebar, need to show the unit, such as meter, mile, or km. For the scale bar, show the geo-distance only, no need to show the map distance; e.g., show 1 km, not 1 mm.",
+                        "if the operation is to generate a scale bar, these code lines could be your referece: from matplotlib_scalebar.scalebar import ScaleBar; ax.add_artist(ScaleBar(1))",
+                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 300.',
                         ]
 
 
@@ -97,11 +100,12 @@ assembly_role =  r'''A professional cartographer and programmer good at Python. 
 
 assembly_requirement = ['You can think step by step. ',
                     "Each function is one step to solve the question. ",
-                    "The output of the final function is the question to the question.",
+                    "The output of the final function is to generate a map.",
                     "Put your reply in a code block(enclosed by ```python and ```), NO explanation or conversation outside the code block.",              
-                    "Save final maps, if any. If use matplotlib, the function is: matplotlib.pyplot.savefig(*args, **kwargs).",
+                    "Save the generated map as the file of 'output_map.png'. If use matplotlib, the function is: matplotlib.pyplot.savefig(*args, **kwargs).",
                     "The program is executable, put it in a function named 'assembely_solution()' then run it, but DO NOT use 'if __name__ == '__main__:' statement because this program needs to be executed by exec().",
                     "Use the built-in functions or attribute, if you do not remember, DO NOT make up fake ones, just use alternative methods.",
+                    'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 300.',
                     ]
 
 #--------------- constants for direct request prompt generation  ---------------
@@ -149,16 +153,17 @@ direct_request_requirement = [
                         ]
 
 #--------------- constants for debugging prompt generation  ---------------
-debug_role =  r'''A professional Geo-information scientist and programmer good at Python. You have worked on Geographic information science more than 20 years, and know every detail and pitfall when processing spatial data and coding. You have significant experience on code debugging. You like to find out debugs and fix code. Moreover, you usually will consider issues from the data side, not only code implementation.
+debug_role =  r'''A professional Geo-information scientist and programmer good at Python. You have worked on Geographic information science more than 20 years, and know every detail and pitfall when processing spatial data and coding. You have significant experience on code debugging. You like to find out debugs and fix code. Moreover, you usually will consider issues from the data side, not only code implementation. You current job is to debug the code for map generation.
 '''
 
 debug_task_prefix = r'You need to correct the code of a program based on the given error information, then return the complete corrected code.'
 
 debug_requirement = [
-                        'Correct the code. Revise the buggy parts, but need to keep program structure, i.e., the function name, its arguments, and returns.',
-                        'Elaborate your reasons for revision.',
+                        'Think step by step. Elaborate your reasons for revision before return the code.',
+                        'Correct the code. Revise the buggy parts, but need to keep program structure, i.e., the function name, its arguments, and returns.',                        
                         'You must return the entire corrected program in only one Python code block(enclosed by ```python and ```); DO NOT return the revised part only.',
                         'If using GeoPandas to load a zipped ESRI shapefile from a URL, the correct method is "gpd.read_file(URL)". DO NOT download and unzip the file.',
+                        'Make necessary revision only. Do not change the structure of the given code or program; keep all functions.',
                         "Note module 'pandas' has no attribute or method of 'StringIO'",
                         "When doing spatial analysis, convert the involved spatial layers into the same map projection, if they are not in the same projection.",
                         "DO NOT reproject or set spatial data(e.g., GeoPandas Dataframe) if only one layer involved.",
@@ -168,7 +173,8 @@ debug_requirement = [
                         # "When joining tables, convert the involved columns to string type without leading zeros. ",
                         # "If using colorbar for GeoPandas or Matplotlib visulization, set the colorbar's height or length as the same as the plot for better layout.",
                         "When doing spatial joins, remove the duplicates in the results. Or please think about whether it needs to be removed.",
-                        "Graphs or maps need to show the unit, legend, or colorbar.",
+                        "Map grid, legend, or colorbar need to show the unit.",
+                        'If a Python package is not installed, add the install command such as "pip" at the beginning of the revised code.',
                         # "Show a progressbar (e.g., tqdm in Python) if loop more than 200 times, also add exception handling for loops to make sure the loop can run.",
                         # "When crawl the webpage context to ChatGPT, using Beautifulsoup to crawl the text only, not all the HTML file.",
                         "If using GeoPandas for spatial analysis, when doing overlay analysis, carefully think about use Geopandas.GeoSeries.intersects() or geopandas.sjoin(). ",
@@ -182,23 +188,24 @@ debug_requirement = [
                         "When read FIPS or GEOID columns from CSV files, read those columns as str or int, never as float.",
                         "FIPS or GEOID columns may be str type with leading zeros (digits: state: 2, county: 5, tract: 11, block group: 12), or integer type without leading zeros. Thus, when joining using they, you can convert the integer colum to str type with leading zeros to ensure the success.",
                         "If you need to make a map and the map size is not given, set the map size to 15*10 inches.",
+                        'Save the generated map as the file of "output_map.png"; the DPI is 300.',
                         ]
 
 #--------------- constants for operation review prompt generation  ---------------
-operation_review_role =  r'''A professional Geo-information scientist and developer good at Python. You have worked on Geographic information science more than 20 years, and know every detail and pitfall when processing spatial data and coding. Your current job is to review other's code, mostly single functions; you are a very careful person, and enjoy code review. You love to point out the potential bugs of code of data misunderstanding.
+operation_review_role =  r'''A professional Geo-information scientist and developer good at Python. You have worked on Geographic information science more than 20 years, and know every detail and pitfall when visualizing spatial data and coding. Your current job is to review other's code, mostly single functions; you are a very careful person, and enjoy code review. You love to point out the potential bugs of code of data misunderstanding. Your current job is to review the functions for map generation.
 '''
 
 operation_review_task_prefix = r'Review the code of a function to determine whether the code meets its associated requirements. If not, correct it then return the complete corrected code. '
 
 operation_review_requirement = [
                         'Review the code very carefully to ensure its correctness and robustness.',
-                        'Elaborate your reasons for revision.',
+                        'Elaborate your reasons for revision before return the revised code.',
                         'If the code has no error, and you do not need to modify the code, DO NOT return code, return "PASS" only, without any other explanation or description.',
                         'If you modified the code, return the complete corrected function. All returned code need to be inside only one Python code block (enclosed by ```python and ```).',
                         'DO NOT use more than one Python code blocks in your reply, because I need to extract the complete Python code in the Python code block.',
                         'Pay extra attention on file name, table field name, spatial analysis parameters, map projections, and NaN cells removal, in the used Pandas columns.',
                         'Pay extra attention on the common field names when joining Pandas DataFrame.',
-                        "Graphs or maps need to show the unit, legend, or colorbar.",
+                        "Map elements such as grid, legend, and colorbar need to show the unit.",
                         # "If using colorbar for GeoPandas or Matplotlib visulization, set the colorbar's height or length as the same as the plot for better layout.",
                         'The given code might has error in mapping or visualization when using GeoPandas or Matplotlib packages.',
                         'Revise the buggy parts, but DO NOT rewrite the entire function, MUST keep the function name, its arguments, and returns.',
@@ -208,21 +215,22 @@ operation_review_requirement = [
                         "If using GeoPandas for spatial analysis, when doing overlay analysis, carefully think about use Geopandas.GeoSeries.intersects() or geopandas.sjoin(). ",
                         "Geopandas.GeoSeries.intersects(other, align=True) returns a Series of dtype('bool') with value True for each aligned geometry that intersects other. other:GeoSeries or geometric object. ",
                         "Note geopandas.sjoin() returns all joined pairs, i.e., the return could be one-to-many. E.g., the intersection result of a polygon with two points inside it contains two rows; in each row, the polygon attribute is the same. If you need of extract the polygons intersecting with the points, please remember to remove the duplicated rows in the results.",
-                        "If you need to make a map and the map size is not given, set the map size to 15*10 inches.",
+                        "If the map size is not given, set it to 15*10 inches.",
+                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 300.',
                         ]
 
 #--------------- constants for assembly program review prompt generation  ---------------
-assembly_review_role =  r'''A professional Geo-information scientist and developer good at Python. You have worked on Geographic information science more than 20 years, and know every detail and pitfall when processing spatial data and coding. Your current job is to review other's code -- mostly assembly functions into a complete programm; you are a very careful person, and enjoy code review. You love to point out the potential bugs of code of data misunderstanding.
+assembly_review_role =  r'''A professional cartographer and Python developer. You have worked on cartography more than 20 years, and know every detail and pitfall on visualizing spatial data and coding. Your current job is to review other's code -- mostly assembly functions into a complete map generating programm; you are a very careful person, and enjoy code review. You love to point out the potential bugs of code of data misunderstanding.
 '''
 
 assembly_review_task_prefix = r'Review the code of a program to determine whether the code meets its associated requirements. If not, correct it then return the complete corrected code. '
 
 assembly_review_requirement = [
-                        'Review the code very carefully to ensure its correctness and robustness.',
-                        'Elaborate your reasons for revision.',
+                        'Elaborate your reasons for revision at the beginning.',
+                        'Review the code very carefully to ensure its correctness and robustness.',                        
                         'If the code has no error, and you do not need to modify the code, DO NOT return code, return "PASS" only, without any other explanation or description.',
-                        'If you modified the code, DO NOT reture the revised part only; instead, return the complete corrected program. All returned code need to be inside only one Python code block (enclosed by ```python and ```)',
-                         "Graphs or maps need to show the unit, legend, or colorbar.",
+                        'If you modified the code, DO NOT reture the revised part only; instead, return the complete corrected program, do not ellipsis any part. All returned code need to be inside only one Python code block (enclosed by ```python and ```). The returned code will directly run in a Python interpreter to obtain the results.',
+                        "Map elements such as grid, legend, and colorbar need to show the unit. The unit should be correct.",
                         'DO NOT use more than one Python code blocks in your reply, because I need to extract the complete Python code in the Python code block.',
                         'Pay extra attention on file name, table field name, spatial analysis parameters, map projections, and NaN cells removal in the used Pandas columns.',
                         'Pay extra attention on the common field names when joining Pandas DataFrame.',
@@ -245,7 +253,7 @@ direct_review_task_prefix = r'Review the code of a program to determine whether 
 direct_review_requirement = [
                         'Review the code very carefully to ensure its correctness and robustness.',
                         'Elaborate your reasons for revision.',
-                        "Graphs or maps need to show the unit, legend, or colorbar.",
+                        "Graphs or maps need to show the unit, legend, or colorbar. The unit should be correct",
                         'If the code has no error, and you do not need to modify the code, DO NOT return code, return "PASS" only, without any other explanation or description.',
                         'If you modified the code, return the complete corrected program. All returned code need to be inside only one Python code block (enclosed by ```python and ```)',
                         'DO NOT use more than one Python code blocks in your reply, because I need to extract the complete Python code in the Python code block.',
@@ -278,3 +286,122 @@ sampling_data_requirement = [
                         #
                         ]
 
+
+#--------------- constants for map  beautification---------------
+beautify_role = r'''A professional cartographer and programmer good at Python. You have worked on cartography more than 20 years, and know every detail and pitfall when visulizing spatial data and coding. You know well how to set up workflows for cartography tasks. You have significant experence on visualizing spatial data and graph theory. You are also experienced on generating map using Matplotlib, GeoPandas and other interative Python packages, such as Plotly. Currently, your job is beautify maps to obtain better overall aesthetic appeal accordings to the given code and the generated map by the code. The purpose of the code is also given. Note the code is generated by AI, so it may be unreasonable.
+'''
+
+beautify_task = r'Observe the given map careful using the viewpoint of an experienced cartographer and Python programmer, think about the map design improvements via modifying the code only, and return the modified code. '
+ 
+beautify_requirement = [   
+                        'Carefully observe the given map. Think step by step. First, explain the current defects of the map, and the apporaches to improve them; then return the improved Python code.',   
+                        'Put your revised code into a single Python code block, enclosed by ```python and ```. Return the entire program, do not ellipsis any part.', 
+                        'Do not make up facts that the map does not show.',
+                        'A map usualy contains several map elements, such as title, north arrow scalebar, legend, label, and annotation.',
+                        "Carefully adjust the location parameters of the map elements accoding to the map appearance.",
+                        "If you see the position of the map element is not good, you can adjust its position in the code.",
+                        # 'Create an operation node for each map element, you can determine which element is needed according to user input or based on your reasoning.',
+                        'The color scheme should consider the harmony, contrast, brightness, warm or cold, and the map theme. You can use the color scheme in Mapplotlib, Tableau, or ggplot2. The colorbar or legend need to use the same color scheme as the map.',
+                        'Map elements, such as title, legend, scale bar, should be in a good layout and alignment, considering balance, simplification, borders and margins.',    
+                        'The map elements should be in a suitable size, not to big, long, tall, or small.',
+                        'Design the suitalbe font and font sizes, considering hierachical levels.',
+                        'Make some decorations if necessary.',
+                        'Carefully design the symbols of polygons, polylines, and points, consideing background and legibility',
+                        'Texts, labels, and annotations cannot overlay to each other.',
+                        'If given the audience types, such as adults and kids, you can consider beautify the map accordingly.',
+                        'North arrow or compass cannot be split into different locaions, such as top and bottom. Do not put is far away from the map.',
+                        'The scale bar needs to long enough. The colorbar needs a length or height close to smaller to map, rather than too long.',
+                        "When adding the map grid, colorbar, and scalebar, need to show the unit, such as meter, mile, or km.",
+                        'Add the basemap if necessary.',
+                        'The map elements are added by individual Python functions respectively. When you revise map elements, you can modify the associated functions.',
+                        'The color and symboles in the legend should be associated to the map.',
+                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 300.',
+                    
+                         ]
+
+ 
+beautify_reply_exmaple = r"""
+Current map issues: 
+1. The title font size is too small (14 only).
+2. The contrast of map color and background color can be more strong.
+Improvement:
+1. Increase the title font size to 24.
+2. Change the map color and background color.
+Below are the improved entire program:
+```python
+import matplotlib.pyplot as plt
+...
+```
+"""
+
+map_review_role = r'''A professional cartographer. You have worked on cartography more than 20 years, and know how to design an aesthietic appeal map. Your current job is to review the map generated by AI. You need to point out the issues of the given map in detail, so that the AI can improve the map later. Note that AI makes the map via generated code, so your comments should be suitable for improvements by code. The requirements of the map are also provided.
+'''
+map_review_task = r'Observe the given map carefully using the viewpoint of an experienced cartographer.'
+
+map_review_reply_exmaple = r"""
+1. The title font size is too small, needs to be enlarged.
+2. The contrast of map color and background color can be more strong.
+...
+"""
+
+map_review_requirement = [
+                      "Elaborate the issues, then provide the specific and actionable improvements, such as 'move the legend to the up-left to void obscuring'. If you think there is no issue, no need to mention.",
+                      "Whether the title semantically meet the data and map requirement.",
+                      "Whether the fonts and font sizes are suitable and hierachical.",
+                      "Wheter the map is in the center.",
+                      "Whether the legend or colorbar use the some color scheme.",
+                      "Whether the positions of map elements (e.g., title, north arrow, legend, scale bar) are appropriate, or their sizes are too big or too small.",
+                      "Whether the map element overlay with each other, resulting in illegible.",
+                      "Whether the scale bar is correct. The DPI usually is 300.",
+                      "Whether the map elements are too close or too far apart.",
+                      "Wheter there are redundant map elements, such as two color bars.",
+                      "Return your comments one by one without any other explaination. ",
+                      "No need to provide comments if there is no issue in an aspect.",
+                    
+                  ]
+
+
+
+#--------------- constants for map  revision ---------------
+map_revise_role = r'''A professional cartographer and programmer good at Python. You have worked on cartography more than 20 years, and know every detail and pitfall when visulizing spatial data and coding. You are experenced on visualizing spatial data and graph theory. You are also experienced on generating map using Matplotlib, GeoPandas and other interative Python packages, such as Plotly. Currently, your job is revise maps to obtain better overall aesthetic appeal by modifiying the given code--the map is generated by the code. The purpose of the code is also given. Note the code is generated by AI, so it may be unreasonable. A reviewer has pointed out the map issues and provided improving comments. Your need to modify the code accordingly.
+'''
+
+map_revise_task = r'Observe the given map careful using the viewpoint of an experienced cartographer and Python programmer, then according to your observation and the pointed out map issues to improve the map design by modifying the code only. You need to then entire program rather than the modified code only.'
+ 
+map_revise_requirements = [   
+                        'Carefully observe the given map according to the given issues; then return the improved Python code.',
+                        "Propose the detailed and specific solution to the given issues in the point-to-point manner.",
+                        "Before return the modified code, explain how to address each issue by modifiying the code, such as increase the font size from 10 to 14.",
+                        'Put your revised code into a single Python code block, enclosed by ```python and ```. Return the entire program, do not ellipsis any part.', 
+                        'Do not make up facts that the map does not show.',
+                        "Carefully adjust the location parameters of the map elements accoding to the map appearance.",
+                        "If you see the position of the map element is not appropriate, you can adjust its position in the code.",
+                        'Only make necessary revisions for the code. Do not change the structure of the given code or program; keep all functions.',
+                        # 'Create an operation node for each map element, you can determine which element is needed according to user input or based on your reasoning.',
+                        'The colormap should consider the harmony, contrast, brightness, warm or cold, and the map theme. You can use the colormaps in Mapplotlib, Tableau, or ggplot2. The colorbar or legend need to use the same colormap as the map.',
+                        'Map elements, such as title, legend, scale bar, should be in a good layout and alignment, considering balance, simplification, borders and margins.',
+                        'The map elements, expecially the colorbar and scalebar, should be in a suitable size, not to big, long, tall, or small.',
+                        'Design the suitalbe font and font sizes, considering hierachical levels.',
+                        'Make some decorations if necessary.',
+                        'Carefully design the symbols of polygons, polylines, and points, consideing background and legibility',
+                        'Texts, labels, and annotations cannot overlay to each other.',
+                        'If given the audience types, such as adults or kids, you can consider beautify the map accordingly.',
+                        'North arrow or compass cannot be split into different locaions, such as top and bottom. Do not put is far away from the map.',
+                        'The scale bar needs to long enough. The colorbar needs a length or height close to the map, rather than too long.',
+                        "When adding the map grid, colorbar, and scalebar, need to show the unit, such as meter, mile, or km.",
+                        'Add the basemap if necessary.',
+                        "The color and symboles in the legend should be associated to the map's colormap.",
+                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 300.',
+                    
+                         ]
+
+ 
+map_revise_reply_exmaple = r"""
+Address the given comments: 
+1. The title font size is too small. I will increase the font size from 10 to 14.
+2. The contrast of map color and background color can be more strong. I will use the Matplotlib "viridis" colormap to replace the current "coolwarm" colormap. 
+```python
+import matplotlib.pyplot as plt
+...
+```
+"""
