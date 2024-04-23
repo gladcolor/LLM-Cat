@@ -90,7 +90,7 @@ operation_requirement = [
                         'When you add a color bar, make sure it has a suitable size, such as not longer than the map height or width.',    
                         "When adding the map grid, colorbar, and scalebar, need to show the unit, such as meter, mile, or km. For the scale bar, show the geo-distance only, no need to show the map distance; e.g., show 1 km, not 1 mm.",
                         "if the operation is to generate a scale bar, these code lines could be your referece: from matplotlib_scalebar.scalebar import ScaleBar; ax.add_artist(ScaleBar(1))",
-                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 300.',
+                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
                         ]
 
 
@@ -105,7 +105,7 @@ assembly_requirement = ['You can think step by step. ',
                     "Save the generated map as the file of 'output_map.png'. If use matplotlib, the function is: matplotlib.pyplot.savefig(*args, **kwargs).",
                     "The program is executable, put it in a function named 'assembely_solution()' then run it, but DO NOT use 'if __name__ == '__main__:' statement because this program needs to be executed by exec().",
                     "Use the built-in functions or attribute, if you do not remember, DO NOT make up fake ones, just use alternative methods.",
-                    'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 300.',
+                    'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
                     ]
 
 #--------------- constants for direct request prompt generation  ---------------
@@ -188,7 +188,7 @@ debug_requirement = [
                         "When read FIPS or GEOID columns from CSV files, read those columns as str or int, never as float.",
                         "FIPS or GEOID columns may be str type with leading zeros (digits: state: 2, county: 5, tract: 11, block group: 12), or integer type without leading zeros. Thus, when joining using they, you can convert the integer colum to str type with leading zeros to ensure the success.",
                         "If you need to make a map and the map size is not given, set the map size to 15*10 inches.",
-                        'Save the generated map as the file of "output_map.png"; the DPI is 300.',
+                        'Save the generated map as the file of "output_map.png"; the DPI is 100.',
                         ]
 
 #--------------- constants for operation review prompt generation  ---------------
@@ -216,7 +216,7 @@ operation_review_requirement = [
                         "Geopandas.GeoSeries.intersects(other, align=True) returns a Series of dtype('bool') with value True for each aligned geometry that intersects other. other:GeoSeries or geometric object. ",
                         "Note geopandas.sjoin() returns all joined pairs, i.e., the return could be one-to-many. E.g., the intersection result of a polygon with two points inside it contains two rows; in each row, the polygon attribute is the same. If you need of extract the polygons intersecting with the points, please remember to remove the duplicated rows in the results.",
                         "If the map size is not given, set it to 15*10 inches.",
-                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 300.',
+                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
                         ]
 
 #--------------- constants for assembly program review prompt generation  ---------------
@@ -315,7 +315,7 @@ beautify_requirement = [
                         'Add the basemap if necessary.',
                         'The map elements are added by individual Python functions respectively. When you revise map elements, you can modify the associated functions.',
                         'The color and symboles in the legend should be associated to the map.',
-                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 300.',
+                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
                     
                          ]
 
@@ -352,7 +352,7 @@ map_review_requirement = [
                       "Whether the legend or colorbar use the some color scheme.",
                       "Whether the positions of map elements (e.g., title, north arrow, legend, scale bar) are appropriate, or their sizes are too big or too small.",
                       "Whether the map element overlay with each other, resulting in illegible.",
-                      "Whether the scale bar is correct. The DPI usually is 300.",
+                      "Whether the scale bar is correct. The DPI usually is 100.",
                       "Whether the map elements are too close or too far apart.",
                       "Wheter there are redundant map elements, such as two color bars.",
                       "Return your comments one by one without any other explaination. ",
@@ -391,7 +391,7 @@ map_revise_requirements = [
                         "When adding the map grid, colorbar, and scalebar, need to show the unit, such as meter, mile, or km.",
                         'Add the basemap if necessary.',
                         "The color and symboles in the legend should be associated to the map's colormap.",
-                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 300.',
+                        'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
                     
                          ]
 
