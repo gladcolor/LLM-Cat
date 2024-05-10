@@ -676,7 +676,8 @@ class Solution():
         map_review_prompt = f"Your role: {constants.map_review_role} \n" + \
                           f"Your task: {constants.map_review_task} \n\n" + \
                           f"Requirements: \n{requirements_str} \n\n" + \
-                          f'Your reply example: {constants.map_review_reply_exmaple} \n\n'
+                          f'Your reply example: {constants.map_review_reply_exmaple} \n\n' + \
+                          f"The cartography requirements for the map: {self.task}"
       
         
         self.map_review_prompt = map_review_prompt
