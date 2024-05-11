@@ -52,6 +52,7 @@ graph_requirement = [
                         'Add a map element via an individual operation node. The nodes of adding map elements should be successive.',
                         'Do not put the GraphML writing process as a step in the graph.',
                         'Keep the graph concise; DO NOT use too many operation nodes.',
+                        "You can create a map matrix using a operation node only. No need to use a operation node to create a submap of a map matrix.",
   
                          ]
 
@@ -355,12 +356,15 @@ map_review_requirement = [
                       "Whether the legend or colorbar use the same colormap.",
                       "Whether the positions of map elements (e.g., title, north arrow, legend, scale bar) are appropriate, or their sizes are too big or too small.",
                       "Whether the map elements overlay with each other, resulting in something illegible.",
-                      "Whether the scale bar is correct and the DPI usually is 100.",
+                      "Whether the scale bar is correct and the DPI usually is 100 if not given.",
                       "Whether the map elements are too close or too far apart.",
                       "Whether there are redundant map elements, such as two color bars.",
                       "Whether the alignments between the map elements are appropriate; large empty space is not allowed.",
-                      "Return your comments one by one without any other explanation. ",
+                      "Whether the length label and unit of scale bar is correct.",
+                      "Whether the direction of north arrow is correct, usually upforward.",
+                      "Return your comments one by one without any other explanation. ",                         
                       "No need to provide comments if there is no issue in an aspect.",
+                      
                     
                   ]
 
