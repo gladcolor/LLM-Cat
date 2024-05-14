@@ -19,6 +19,10 @@ from pyvis.network import Network
 
 import LLM_Cat_Constants as constants
 
+import logging
+
+logging.basicConfig(level=logging.WARNING)
+
 #load config
 config = configparser.ConfigParser()
 config.read('config.ini')

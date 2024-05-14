@@ -13,7 +13,7 @@ OpenAI_key = config.get('API_Key', 'OpenAI_key')
 graph_role = r'''A professional cartographer and programmer good at Python. You have worked on cartography for more than 20 years and know every detail and pitfall when visualizing spatial data and coding. You know how to set up workflows for cartography tasks well. You have significant experience in visualizing spatial data and graph theory. You are also experienced in generating maps using Matplotlib, GeoPandas, and other interactive Python packages, such as Plotly.
 '''
 
-graph_task_prefix = r'Generate a graph (data structure) only, whose nodes are a series of consecutive steps to make a map, including visualizing the data add map elements such as title, legend, scalebar, label, and annotation.: '
+graph_task_prefix = r'Generate a graph (data structure) only, whose nodes are a series of consecutive steps to make a map, including visualizing the data and adding map elements such as title, legend, scalebar, label, and annotation. The task requirements are:'
 
 graph_reply_exmaple = r"""
 ```python
@@ -53,7 +53,7 @@ graph_requirement = [
                         'Do not put the GraphML writing process as a step in the graph.',
                         'Keep the graph concise; DO NOT use too many operation nodes.',
                         "You can create a map matrix using a operation node only. No need to use a operation node to create a submap of a map matrix.",
-  
+                        'Add a basemap if you think it will increase the aesthetics, then change the layer transparency above the base map.',
                          ]
 
   
@@ -92,6 +92,10 @@ operation_requirement = [
                         "When adding the map grid, colorbar, and scalebar, you need to show the unit, such as meter, mile, or km. For the scale bar, show the geo-distance only, no need to show the map distance; e.g., show 1 km, not 1 mm.",
                         "if the operation is to generate a scale bar, these code lines could be your reference: from matplotlib_scalebar.scalebar import ScaleBar; ax.add_artist(ScaleBar(1))",
                         'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
+                        'Add a basemap if you think it will increase the aesthetics, then change the layer transparency above the base map.',
+                        'If using `contextily` Python package. DO NOT use providers.Stamen because it has been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
+                        'The scale bar unit should be Meter, Mile, or km, not Mm or Cm.',
+                        "Using raw strings ( `r''`) to store the file paths.",
                         ]
 
 
@@ -107,6 +111,8 @@ assembly_requirement = ['You can think step by step. ',
                     "The program is executable; put it in a function named 'assembely_solution()' then run it, but DO NOT use 'if __name__ == '__main__:' statement because this program needs to be executed by exec().",
                     "Use the built-in functions or attribute, if you do not remember, DO NOT make up fake ones, just use alternative methods.",
                     'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
+                    'The scale bar unit should be meter, mile, or km, not mm or cm.',
+                    'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
                     ]
 
 #--------------- constants for direct request prompt generation  ---------------
@@ -161,7 +167,8 @@ debug_task_prefix = r"You need to correct a program's code based on the given er
 
 debug_requirement = [
                         'Think step by step. Elaborate your reasons for revision before returning the code.',
-                        'Correct the code. Revise the buggy parts, but need to keep program structure, i.e., the function name, its arguments, and returns.',                        
+                        'Correct the code. Revise the buggy parts, but need to keep program structure, i.e., the function name, its arguments, and returns.', 
+                        "The revised code still needs to stick to the original code purpose.",
                         'You must return the entire corrected program in only one Python code block(enclosed by ```python and ```); DO NOT return the revised part only.',
                         'If using GeoPandas to load a zipped ESRI shapefile from a URL, the correct method is "gpd.read_file(URL)". DO NOT download and unzip the file.',
                         'Make necessary revisions only. Do not change the structure of the given code or program; keep all functions.',
@@ -190,6 +197,9 @@ debug_requirement = [
                         "FIPS or GEOID columns may be str type with leading zeros (digits: state: 2, county: 5, tract: 11, block group: 12), or integer type without leading zeros. Thus, when joining using they, you can convert the integer colum to str type with leading zeros to ensure the success.",
                         "If you need to make a map and the map size is not given, set the map size to 15*10 inches.",
                         'Save the generated map as the file of "output_map.png"; the DPI is 100.',
+                        "If need to install packages, create a shell command then run the command at the beginning of the program.",
+                        'The scale bar unit should be meter, mile, or km, not mm or cm.',
+                        'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
                         ]
 
 #--------------- constants for operation review prompt generation  ---------------
@@ -218,6 +228,8 @@ operation_review_requirement = [
                         "Note geopandas.sjoin() returns all joined pairs, i.e., the return could be one-to-many. E.g., the intersection result of a polygon with two points inside it contains two rows; in each row, the polygon attribute is the same. If you need of extract the polygons intersecting with the points, please remember to remove the duplicated rows in the results.",
                         "If the map size is not given, set it to 15*10 inches.",
                         'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
+                        'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
+                        'The scale bar unit should be Meter, Mile, or km, not Mm or Cm.',
                         ]
 
 #--------------- constants for assembly program review prompt generation  ---------------
@@ -241,6 +253,8 @@ assembly_review_requirement = [
                         "If using GeoPandas for spatial analysis, when doing overlay analysis, carefully think about use Geopandas.GeoSeries.intersects() or geopandas.sjoin(). ",
                         "Geopandas.GeoSeries.intersects(other, align=True) returns a Series of dtype('bool') with value True for each aligned geometry that intersects other. other:GeoSeries or geometric object. ",
                         "Note geopandas.sjoin() returns all joined pairs, i.e., the return could be one-to-many. E.g., the intersection result of a polygon with two points inside it contains two rows; in each row, the polygon attribute is the same. If you need of extract the polygons intersecting with the points, please remember to remove the duplicated rows in the results.",
+                        'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
+                        'The scale bar unit should be Meter, Mile, or km, not Mm or Cm.',
                         #
                         ]
 
@@ -312,11 +326,13 @@ beautify_requirement = [
                         'If given the audience types, such as adults and kids, you can consider beautify the map accordingly.',
                         'North arrow or compass cannot be split into different locaions, such as top and bottom. Do not put is far away from the map.',
                         'The scale bar needs to long enough. The colorbar needs a length or height close to smaller to map, rather than too long.',
-                        "When adding the map grid, colorbar, and scalebar, need to show the unit, such as meter, mile, or km.",
-                        'Add the basemap if necessary.',
+                        "When adding the map grid, colorbar, and scalebar, need to show the unit.",
+                        'Add a basemap if you think it will increase the aesthetics, then change the layer transparency above the base map.',
+                        'The scale bar unit should be Meter, Mile, or km, not Mm or Cm.',
                         'The map elements are added by individual Python functions respectively. When you revise map elements, you can modify the associated functions.',
                         'The color and symboles in the legend should be associated to the map.',
                         'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
+                        'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
                     
                          ]
 
@@ -341,14 +357,15 @@ map_review_role = r'''A professional cartographer. You have worked on cartograph
 map_review_task = r'Observe the given map carefully using the viewpoint of an experienced cartographer.'
 
 map_review_reply_exmaple = r"""
-1. The title font size is too small: needs to be enlarged.
-2. The contrast between the map color and the background color can be stronger.
+1. The map does not meet the task requirements: 1) it lacks an overview sub-map, which is required in the task requirements; 2) The required legend is missing.
+2. The title font size is too small: needs to be enlarged.
+3. The contrast between the map color and the background color can be stronger.
 ...
 """
 
 map_review_requirement = [
+                      "Whether the map requirements are satisfied.",
                       "Elaborate on the issues, then provide specific and actionable improvements, such as 'move the legend to the up-left to void obscuring'. If you think there is no issue, no need to mention it.",
-                      "Whether the map meets cartography requirements for the map.",
                       "Whether there are obstructions between labels, annotations, axis labels, axis ticks, title, legend, scale bar, and other map elements.",
                       "Whether the title semantically meets the data and map requirement.",
                       "Whether the fonts and font sizes are suitable and hierarchical.",
@@ -364,7 +381,9 @@ map_review_requirement = [
                       "Whether the direction of north arrow is correct, usually upforward.",
                       "Return your comments one by one without any other explanation. ",                         
                       "No need to provide comments if there is no issue in an aspect.",
-                      
+                      'The scale bar unit should be meter, mile, or km, not mm or cm.',
+                      'Add a basemap if you think it will increase the aesthetics, then change the layer transparency above the base map.',
+                      'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
                     
                   ]
 
@@ -377,6 +396,7 @@ map_revise_role = r'''A professional cartographer and programmer good at Python.
 map_revise_task = r'Observe the given map carefully using the viewpoint of an experienced cartographer and Python programmer, then improve the map design by modifying the code only according to your observation and the given map issues. You need to return the entire program rather than the modified code only.'
  
 map_revise_requirements = [   
+                        'The revisions need to satisfy the map requirements.',
                         'Carefully observe the given map according to the given issues, then return the improved Python code.',
                         "Propose the detailed and specific solution to a given issue in the point-to-point manner.",
                         "Before return the modified code, explain how to address each issue by modifiying the code, such as increase the font size from 10 to 14.",
@@ -396,11 +416,12 @@ map_revise_requirements = [
                         'If given the audience types, such as adults or kids, you can consider beautify the map accordingly.',
                         'The north arrow or compass cannot be split into different locaions, such as top and bottom. Do not put is far away from the map.',
                         'The scale bar needs to long enough. The colorbar needs a length or height close to the map, rather than too long.',
-                        "When adding the map grid, colorbar, and scalebar, you need to show the unit, such as meter, mile, or km.",
-                        'Add a basemap if necessary.',
+                        "When adding the map grid, colorbar, and scalebar, you need to show the unit",
+                        'The scale bar unit should be Meter, Mile, or km, not Mm or Cm.',
+                        'Add a basemap if you think it will increase the aesthetics, then change the layer transparency above the base map.',
                         "The color and symbols in the legend should be associated to the map's colormap.",
                         'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
-                    
+                        'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
                          ]
 
  

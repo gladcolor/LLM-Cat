@@ -13,6 +13,10 @@ import time
 import sys
 import traceback
 
+import logging
+
+logging.basicConfig(level=logging.WARNING)
+
 #load config
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -74,8 +78,8 @@ class Solution():
         graph_requirement_str =  '\n'.join([f"{idx + 1}. {line}" for idx, line in enumerate(graph_requirement)])
         
         graph_prompt = f'Your role: {self.role} \n\n' + \
-               f'Your task: {constants.graph_task_prefix} \n {self.task} \n\n' + \
-               f'Your reply needs to meet these requirements: \n {graph_requirement_str} \n\n' + \
+               f'Your task requirements: {constants.graph_task_prefix} \n {self.task} \n\n' + \
+               f'Your reply needs to meet these technical requirements: \n {graph_requirement_str} \n\n' + \
                f'Your reply example: {constants.graph_reply_exmaple} \n\n' + \
                f'Data locations (each data is a node): {self.data_locations_str} \n'
         self.graph_prompt = graph_prompt
@@ -358,7 +362,7 @@ class Solution():
         assembly_requirement = '\n'.join([f"{idx + 1}. {line}" for idx, line in enumerate(constants.assembly_requirement)])
 
         assembly_prompt = f"Your role: {constants.assembly_role} \n\n" + \
-                          f"Your task is: use the given Python functions, return a complete Python program to solve the question: \n {self.task}" + \
+                          f"Your task is: use the given Python functions, return a complete Python program to meet these requirements: \n {self.task}" + \
                           f"Requirement: \n {assembly_requirement} \n\n" + \
                           f"Data location: \n {self.data_locations_str} \n" + \
                           f"Code: \n {all_operation_code_str}"
@@ -499,8 +503,8 @@ class Solution():
 
         debug_prompt = f"Your role: {constants.debug_role} \n" + \
                           f"Your task: correct the code of a program according to the error information, then return the corrected and completed program. \n\n" + \
-                          f"Requirement: \n {debug_requirement_str} \n\n" + \
-                          f"The given code is used for this task: {self.task} \n\n" + \
+                          f"Technical requirement: \n {debug_requirement_str} \n\n" + \
+                          f"The given code is used for this purpose: {self.task} \n\n" + \
                           f"The data location associated with the given code: \n {self.data_locations_str} \n\n" + \
                           f"The error information for the code is: \n{str(error_info_str)} \n\n" + \
                           f"The code is: \n{code}"
@@ -636,7 +640,7 @@ class Solution():
 
         beautify_prompt = f"Your role: {constants.beautify_role} \n" + \
                           f"Your task: {constants.beautify_task} \n\n" + \
-                          f"Requirements: \n{beautify_requirement_str} \n\n" + \
+                          f"Technical requirements: \n{beautify_requirement_str} \n\n" + \
                           f'Your reply example: {constants.beautify_reply_exmaple} \n\n' + \
                           f"The given code is used for this task: {self.task} \n\n" + \
                           f"The given code is: \n{code} \n\n"
@@ -675,9 +679,9 @@ class Solution():
 
         map_review_prompt = f"Your role: {constants.map_review_role} \n" + \
                           f"Your task: {constants.map_review_task} \n\n" + \
-                          f"Requirements: \n{requirements_str} \n\n" + \
+                          f"Technical requirements: \n{requirements_str} \n\n" + \
                           f'Your reply example: {constants.map_review_reply_exmaple} \n\n' + \
-                          f"The cartography requirements for the map: {self.task}"
+                          f"The map requirements: {self.task}"
       
         
         self.map_review_prompt = map_review_prompt
@@ -733,10 +737,10 @@ class Solution():
 
         map_revise_prompt = f"Your role: {constants.map_revise_role} \n" + \
                           f"Your task: {constants.map_revise_task} \n\n" + \
-                          f"Requirements: \n{requirements_str} \n\n" + \
+                          f"Technical requirements: \n{requirements_str} \n\n" + \
                           f'Map issues need to be improved:\n {self.map_review_comments} \n\n' + \
                           f'Your reply example:\n {constants.map_revise_reply_exmaple} \n\n' + \
-                          f'The raw requirement for the map: {self.task} \n\n' + \
+                          f'The requirements for the map: {self.task} \n\n' + \
                           f"Code for map generation: \n{self.all_code}"
       
         
