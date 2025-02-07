@@ -31,13 +31,14 @@ G.add_edge("load_boudary_shp", "boundary_gdf")
 """
 graph_requirement = [   
                         'Think step by step.',
-                        'Steps and data (both input and output) form a graph stored in NetworkX. Disconnected components are NOT allowed.',
+                        'Steps and data (both input and output) form a directed acyclic graph stored in NetworkX. Disconnected components are NOT allowed.',
                         'Each step is a data process operation: the input can be data paths or variables, and the output can be data paths or variables.',
-                        'There are two types of nodes: a) operation node, and b) data node (both input and output data). These nodes are also input nodes for the next operation node.',
+                        'There are two types of nodes: a) `operation` node, and b) `data` node (both input and output data). These nodes are also input nodes for the next operation node.',
                         'The input of each operation is the output of the previous operations, except those that need to load data from a path or need to collect data.',
                         'You need to name the output data node carefully, making they human readable but not too long.',
                         'The data and operation form a graph.',
-                        'The first operations are data loading or collection, and the output of the last operation is to generate map(s).',
+                        'The first operations are data loading (i.e., the source node type is `data`, and the output of the last operation is to generate map(s).',
+                        "When loading the data, and need to determine which map projection it needs to be, e.g., a local projected metric rather then geographic map projection for a region.",
                         'Operation nodes need to connect via output data nodes; DO NOT connect the operation node directly.',
                         'The node attributes include: 1) node_type (data or operation), 2) data_path (data node only, set to "" if not given), and description. E.g., {"name": "County boundary", "data_type": "data", "data_path": r"D:\Test\county.shp",  "description": "County boundary for the study area"}.',
                         'The connection between a node and an operation node is an edge.', 
@@ -48,12 +49,11 @@ graph_requirement = [
                         'Note that GraphML writer does not support class dict or list as data values.',
                         'You need to use the given spatial data (e.g., vector or raster) to make a map.',
                         'A map usually contains several map elements, such as title, north arrow scalebar, legend, label, and annotation.',
-                        'Create an operation node to draw each map element, you can determine which element is needed according to user input or based on your reasoning.',
-                        'Add a map element via an individual operation node. The nodes of adding map elements should be successive.',
+                        'Create an operation node to draw one or multiple map elements, you can determine which element is needed according to user input or based on your reasoning.',
                         'Do not put the GraphML writing process as a step in the graph.',
-                        'Keep the graph concise; DO NOT use too many operation nodes.',
+                        'Keep the graph concise; DO NOT use more than 10 operation nodes.',
                         "You can create a map matrix using a operation node only. No need to use a operation node to create a submap of a map matrix.",
-                        'Add a basemap if you think it will increase the aesthetics, then change the layer transparency above the base map.',
+                        'Add a basemap if you think it will increase the aesthetics, you may need to change the layer transparency above the base map.',
                          ]
 
   
@@ -79,6 +79,7 @@ operation_requirement = [
                         'DO NOT change the given variable names and paths.',
                         'Put your reply into a Python code block(enclosed by ```python and ```), NO explanation or conversation outside the code block. Function description can be given as comments before generating the Python function.',
                         'If using GeoPandas to load a zipped ESRI shapefile from a URL, the correct method is "gpd.read_file(URL)". DO NOT download and unzip the file.',
+                        "When loading the data, and need to determine which map projection it needs to be, e.g., a local projected metric rather then geographic map projection for a region.",
                         "You need to receive the data from the functions. DO NOT load in the function if other functions have loaded the data and returned it in advance.",
                         "Use the latest Python modules and methods.",
                         "When doing spatial analysis, convert the involved spatial layers into the same map projection if they are not in the same projection.",
@@ -110,6 +111,7 @@ assembly_requirement = ['You can think step by step. ',
                     "Save the generated map as the file of 'output_map.png'. If use matplotlib, the function is: matplotlib.pyplot.savefig(*args, **kwargs).",
                     "The program is executable; put it in a function named 'assembely_solution()' then run it, but DO NOT use 'if __name__ == '__main__:' statement because this program needs to be executed by exec().",
                     "Use the built-in functions or attribute, if you do not remember, DO NOT make up fake ones, just use alternative methods.",
+                    "When loading the data, and need to determine which map projection it needs to be, e.g., a local projected metric rather then geographic map projection for a region.",
                     'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
                     'The scale bar unit should be meter, mile, or km, not mm or cm.',
                     'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
@@ -229,6 +231,7 @@ operation_review_requirement = [
                         "If the map size is not given, set it to 15*10 inches.",
                         'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
                         'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
+                        "When loading the data, and need to determine which map projection it needs to be, e.g., a local projected metric rather then geographic map projection for a region.",
                         'The scale bar unit should be Meter, Mile, or km, not Mm or Cm.',
                         ]
 
@@ -254,6 +257,7 @@ assembly_review_requirement = [
                         "Geopandas.GeoSeries.intersects(other, align=True) returns a Series of dtype('bool') with value True for each aligned geometry that intersects other. other:GeoSeries or geometric object. ",
                         "Note geopandas.sjoin() returns all joined pairs, i.e., the return could be one-to-many. E.g., the intersection result of a polygon with two points inside it contains two rows; in each row, the polygon attribute is the same. If you need of extract the polygons intersecting with the points, please remember to remove the duplicated rows in the results.",
                         'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
+                        "When loading the data, and need to determine which map projection it needs to be, e.g., a local projected metric rather then geographic map projection for a region.",
                         'The scale bar unit should be Meter, Mile, or km, not Mm or Cm.',
                         #
                         ]
@@ -333,7 +337,7 @@ beautify_requirement = [
                         'The color and symboles in the legend should be associated to the map.',
                         'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
                         'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
-                    
+                        "if using Matplotlib to draw map and the colorbar is too long/tall, using `fig.colorbar(shrink=x, ...)` of make it shorter, x<1.",
                          ]
 
  
@@ -365,7 +369,7 @@ map_review_reply_exmaple = r"""
 
 map_review_requirement = [
                       "Whether the map requirements are satisfied.",
-                      "Elaborate on the issues, then provide specific and actionable improvements, such as 'move the legend to the up-left to void obscuring'. If you think there is no issue, no need to mention it.",
+                      "Elaborate on one major issue only, then provide specific and actionable improvements, such as 'move the legend to the up-left to void obscuring'. If you think there is no issue, no need to mention it.",
                       "Whether there are obstructions between labels, annotations, axis labels, axis ticks, title, legend, scale bar, and other map elements.",
                       "Whether the title semantically meets the data and map requirement.",
                       "Whether the fonts and font sizes are suitable and hierarchical.",
@@ -393,7 +397,7 @@ map_review_requirement = [
 map_revise_role = r'''A professional cartographer and programmer good at Python. You have worked on cartography more than 20 years, and know every detail and pitfall when visulizing spatial data and coding. You are experenced on visualizing spatial data and graph theory. You are also experienced on generating map using Matplotlib, GeoPandas and other interative Python packages, such as Plotly. Currently, your job is revise maps to obtain better overall aesthetic appeal by modifying the given code--the map is generated by the code. The purpose of the code is also given. Note the code is generated by AI, so it may be unreasonable. A reviewer has pointed out the map issues and provided improving comments. You need to modify the code accordingly.
 '''
 
-map_revise_task = r'Observe the given map carefully using the viewpoint of an experienced cartographer and Python programmer, then improve the map design by modifying the code only according to your observation and the given map issues. You need to return the entire program rather than the modified code only.'
+map_revise_task = r'Observe the given map carefully using the viewpoint of an experienced cartographer and Python programmer, then improve the map design by modifying the code only according to your observation and the given map issues. You can mere modify one issue each time. You need to return the entire program rather than the modified code only.'
  
 map_revise_requirements = [   
                         'The revisions need to satisfy the map requirements.',
@@ -422,13 +426,13 @@ map_revise_requirements = [
                         "The color and symbols in the legend should be associated to the map's colormap.",
                         'If the operation is to save a map, save the generated map with the file name as "output_map.png", the DPI is 100.',
                         'If using `contextily` Python package, note that providers.Stamen have been removed; you can use OpenStreetMap or NASAGIBS.BlueMarble.',
+                        "if using Matplotlib to draw map and the colorbar is too long/tall, using `fig.colorbar(shrink=x, ...)` of make it shorter, x<1.",
                          ]
 
  
 map_revise_reply_exmaple = r"""
 Address the given comments: 
-1. The title font size is too small. I will increase the font size from 10 to 14.
-2. The contrast between the map and background colors can be stronger. I will use the Matplotlib "viridis" colormap to replace the current "coolwarm" colormap.
+One major issue: the title font size is too small. I will increase the font size from 10 to 14.
 ```python
 import matplotlib.pyplot as plt
 ...

@@ -70,8 +70,9 @@ class Solution():
         self.code_for_assembly = ""
         self.graph_prompt = ""
         self.map_review_comments = ""
-          
-        self.data_locations_str = '\n'.join([f"{idx + 1}. {line}" for idx, line in enumerate(self.data_locations)])     
+#           
+        # self.data_locations_str = '\n'.join([f"{idx + 1}. {line}" for idx, line in enumerate(self.data_locations)])   
+        self.data_locations_str =  self.data_locations    
         
         graph_requirement = constants.graph_requirement.copy()
         graph_requirement.append(f"Save the network into GraphML format, save it at: {self.graph_file}")
