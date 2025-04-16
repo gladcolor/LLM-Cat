@@ -43,3 +43,6 @@ The maps from multiple rounds (Round 0, 3, 7, and 10) of the cartography agent L
 5) turning up the transparency of the basemap. These improvements make the map look better than Round 0 (initial map).
 
 Note that the scale bar unit should be “km”. The backed GPT-4o model has noticed this error and set the unit parameter to “km” as the document of the Python scale bar package (matplotlib_scalebar), but the showed unit is “Mm” which may caused by matplotlib_scalebar  package bugs. 
+
+# Notes
+- OpenAI `o3` model does not a better job than `gpt-4o`, and it is also error-prone, since it generated more code/comments. (2025-04-16)
